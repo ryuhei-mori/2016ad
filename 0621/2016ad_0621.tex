@@ -1,0 +1,195 @@
+\documentclass[a4paper,twoside,onecolumn,openany,article]{memoir}
+\usepackage{xeCJK}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\defaultfontfeatures{Ligatures=TeX}
+
+\setCJKmainfont[BoldFont=IPAGothic]{IPAMincho}
+\setCJKsansfont{IPAGothic}
+\setCJKmonofont{IPAGothic}
+
+\theoremstyle{remark}
+\newtheorem{remark}{\textbf{余談}}
+
+
+%\setmainfont{}
+\setsansfont{URW Gothic}
+\setmonofont{Inconsolata}
+
+\usepackage{listings}
+
+
+
+\settrimmedsize{\stockheight}{\stockwidth}{*}
+
+%\setlrmarginsandblock{1.5in}{1in}{*}
+\setlrmarginsandblock{1.5in}{1.5in}{*}
+\setulmarginsandblock{1.3in}{1.5in}{*}
+\setheadfoot{20mm}{15mm}
+
+%\newlength{\linespace}
+%\setlength{\linespace}{\baselineskip}
+%\setlength{\headheight}{\onelineskip}
+%\setlength{\headsep}{\linespace}
+%\addtolength{\headsep}{-\topskip}
+
+%\setlength{\footskip}{\onelineskip}
+%\setlength{\footnotesep}{\onelineskip}
+
+\checkandfixthelayout
+
+\counterwithout{section}{chapter}
+\setsecnumdepth{subsubsection}
+
+\title{アルゴリズムとデータ構造~プログラミング演習}
+\date{2016年6月21日}
+\author{森~立平 \texttt{mori@c.titech.ac.jp}}
+
+\begin{document}
+\maketitle
+
+\noindent
+今日の目標
+\begin{itemize}
+\item 分割統治法のプログラムを書けるようになる．
+\end{itemize}
+
+%\section{今日の課題}
+\noindent
+今日の課題(提出締切は今週金曜日 23時59分59秒)
+\begin{enumerate}
+\item クイックソートのプログラムを完成させる．
+\end{enumerate}
+
+\noindent
+今日のワークフロー
+\begin{enumerate}
+\item この資料をよく読み分割統治法の考え方，クイックセレクト，クイックソートについて理解する．
+\item 課題に取り組む．
+\end{enumerate}
+
+%\section{分割統治法}
+\section{分割統治法とは}
+分割統治法 (devide-and-conquer) は効率的なアルゴリズムの枠組みで最も代表的なものの一つである．
+分割統治法は以下の3つのステップからなる再帰的アルゴリズムの枠組みである．
+\begin{enumerate}
+\item \textbf{分割:} 問題をいつくかの同じ問題のより小さい部分問題へ分割する．
+\item \textbf{統治:} 部分問題を再帰的に解く．ただし，部分問題のサイズが十分小さい場合は直接的な方法で解く．
+\item \textbf{結合:} 部分問題の解から元の問題の解を計算する．
+\end{enumerate}
+分割統治法の計算量を見積ろう．
+元の問題の(何かしらの方法で定義された)サイズを$n$とし，サイズ$n$の問題を解く(何かしらの方法で定義された)計算量を$T(n)$とおく．
+分割統治法では「\textbf{統治}」のステップで同じサイズの部分問題を解くことが多い．
+仮に「\textbf{統治}」のステップで$n/a$のサイズの部分問題を$b$個解く($a$と$b$は整数)とし，
+「\textbf{分割}」および「\textbf{結合}」の計算量をそれぞれ$D(n)$, $C(n)$ とすると
+$T(n)$は
+\begin{equation*}
+T(n) = bT(n/a) + D(n) + C(n)
+\end{equation*}
+という漸化式を満たす．
+この漸化式を解くことで$T(n)$のオーダーを求めることができる．
+この漸化式の解き方はここでは説明しない(厳密な証明は少し長くなってしまう)．
+同じサイズの部分問題に分割しないアルゴリズムの場合でも似たような漸化式を立てることができる．
+%授業で勉強した Strassen のアルゴリズムの場合，
+
+\section{分割統治法の例}
+\subsection{クイックセレクト}
+最も単純な分割統治法の例としてクイックセレクトがある．
+次の問題を考えよう．
+
+\vspace{1em}
+\noindent
+入力: 整数の配列 $A$ と非負の整数 $k$.\\
+問題: 整数の配列 $A$ の中で $k+1$ 番目に大きい要素を出力せよ．
+
+\vspace{1em}
+\noindent
+クイックセレクトはこの問題を解く簡単なアルゴリズムである．
+クイックセレクトの擬似コードは Algorithm~\ref{alg:qselect}のようになる．
+クイックセレクトは分割統治法としては珍しいことに一つの部分問題しか解かない．
+また，「\textbf{結合}」の部分は存在しない．
+
+\begin{algorithm}
+\caption{クイックセレクトの擬似コード(入力: 整数の配列 $A$，非負の整数$k$．出力: 配列$A$の$k+1$番目に大きい要素．)}
+\label{alg:qselect}
+\begin{algorithmic}
+\If {配列$A$の長さが1}
+  \State 配列の唯一の要素を解として出力する．
+\Else
+  \State 配列$A$から一つ要素を選択する．以下その要素をピボットと呼ぶ．
+  \State 配列$A$のピボット以外の要素を「ピボット以下のもの」からなる配列$A_1$と「ピボットより大きいもの」からなる配列$A_2$の二つの配列に分割する．
+  \State 配列$A_2$の要素の数を$r$とおく．
+  \If {$r == k$}
+    \State ピボットを解として出力する．
+  \ElsIf {$r<k$}
+    \State 配列$A_1$の中から$k-r$番目に大きい要素を解として出力する(再帰呼出)．
+  \Else
+    \State 配列$A_2$の中から$k+1$番目に大きい要素を解として出力する(再帰呼出)．
+  \EndIf
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+
+\subsection{クイックソート}
+クイックソートは配列を整列させるアルゴリズムである．
+クイックソートの擬似コードは Algorithm~\ref{alg:qsort}のようになる．
+クイックソートはクイックセレクトととても良く似ており，「\textbf{分割}」の部分はまったく同じである．
+
+\begin{algorithm}
+\caption{クイックソートの擬似コード(入力: 整数の配列 $A$．出力: 配列$A$を小さい順に並べた配列．)}
+\label{alg:qsort}
+\begin{algorithmic}
+\If {配列$A$の長さが1以下}
+  \State 配列$A$を解として出力する．
+\Else
+  \State 配列$A$から一つ要素を選択する．以下その要素をピボットと呼ぶ．
+  \State 配列$A$のピボット以外の要素を「ピボット以下のもの」からなる配列$A_1$と「ピボットより大きいもの」からなる配列$A_2$の二つの配列に分割する．
+  \State 配列$A_2$の要素の数を$r$とおく．
+  \State 配列$A_1$をソートして$A'_1$とする(再帰呼出)．
+  \State 配列$A_2$をソートして$A'_2$とする(再帰呼出)．
+  \State $A'_1$, ピボット, $A'_2$の順番に並べた配列を解として出力する．
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\section{分割統治法についてまとめ}
+ここまでの分割統治法についての説明をまとめる．
+\begin{itemize}
+\item 分割統治法は「\textbf{分割}」，「\textbf{統治}」，「\textbf{結合}」の3つの部分からなる再帰的アルゴリズムの枠組みである．
+\item 分割統治法の計算量は漸化式を解くことで得られる．
+\item クイックセレクト，クイックソートは分割統治法の代表的なアルゴリズムである．
+\end{itemize}
+分割統治法はアルゴリズムの枠組みとしてとても重要なものであるが，必ずしも全ての問題に適用できるわけではない．
+分割統治法が適用できない（適用したとしても効率が良くない）場合として
+\begin{itemize}
+\item 部分問題への分割はできるのだがサイズ$n/a$の部分問題へ分割できない
+\end{itemize}
+という状況がある．
+しかし，一方で
+\begin{itemize}
+\item 異なる部分問題の間で計算が重複している
+\end{itemize}
+という性質が満たされている場合には，計算の重複を避けることで効率的なアルゴリズムが設計できる．
+これが動的計画法の考え方である．
+分割統治法と動的計画法を理解すれば世の中のアルゴリズムの大部分が理解できるといっても過言ではない．
+
+\section{今日の課題}
+\begin{enumerate}
+\item クイックセレクトのC言語のプログラムをコンパイルして動かせ．またプログラムを1行づつ読んで内容を理解せよ．
+\item クイックセレクトのプログラムを参考にしてクイックソートのC言語のプログラムを作成せよ．「分割」の部分はクイックセレクトと同じであるが，部分問題を解いた後の再配置を防ぐため，あらかじめピボットを適切な場所に配置してから再帰呼び出しせよ．
+\item クイックセレクトとクイックソートの計算量のオーダーを求めよ．ただし「\textbf{分割}」のステップで必ず配列を半分づつに分割すると仮定せよ．
+\item クイックセレクトとクイックソートの計算量のオーダーを求めよ．ただし「\textbf{分割}」のステップで必ず配列をサイズ1とサイズ$n-1$に分割すると仮定せよ．
+\end{enumerate}
+実際のC言語のプログラムは以下のようになる．
+\lstinputlisting[basicstyle=\ttfamily\small,showstringspaces=false,language=C,caption={クイックセレクトのC言語プログラム}]{quickselect.c}
+
+\section*{余談: 中央値について}
+
+\end{document}
