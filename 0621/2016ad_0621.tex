@@ -24,6 +24,8 @@
 
 \usepackage{listings}
 
+%\renewcommand{\algorithmcfname}{アルゴリズム}
+
 
 
 \settrimmedsize{\stockheight}{\stockwidth}{*}
@@ -76,7 +78,9 @@
 \item 教員かTAに課題提出．
 \end{enumerate}
 
-%\section{分割統治法}
+\section{はじめに}
+ウェブブラウザで \url{https://github.com/ryuhei-mori/2016ad} にアクセスしてください．
+
 \section{分割統治法とは}
 分割統治法 (devide-and-conquer) は効率的なアルゴリズムの枠組みで最も代表的なものの一つである．
 分割統治法は以下の3つのステップからなる再帰的アルゴリズムの枠組みである．
@@ -97,7 +101,7 @@ T(n) = bT(n/a) + D(n) + C(n)
 という漸化式を満たす．
 この漸化式を解くことで$T(n)$のオーダーをもとめることができる．
 この漸化式の解き方はここでは説明しない(厳密な証明は少し長くなってしまう)．
-同じサイズの部分問題に分割しないアルゴリズムの場合でも似たような漸化式を立てることができる．
+また，同じサイズの部分問題に分割しないアルゴリズムの場合でも似たような漸化式を立てることができる．
 %授業で勉強した Strassen のアルゴリズムの場合，
 
 \section{分割統治法の例}
@@ -113,11 +117,12 @@ T(n) = bT(n/a) + D(n) + C(n)
 \vspace{1em}
 \noindent
 クイックセレクトはこの問題を解く簡単なアルゴリズムである．
-クイックセレクトの擬似コードは Algorithm~\ref{alg:qselect}のようになる．
+クイックセレクトの擬似コードをアルゴリズム~\ref{alg:qselect}に示す．
 クイックセレクトは分割統治法としては珍しいことに一つの部分問題しか解かない．
 また，「\textbf{結合}」のステップは存在しない．
 
 \begin{algorithm}
+\floatname{algorithm}{アルゴリズム}
 \caption{クイックセレクトの擬似コード(入力: 整数の配列 $A$，非負の整数$k$．出力: 配列$A$の$k+1$番目に大きい要素．)}
 \label{alg:qselect}
 \begin{algorithmic}
@@ -141,10 +146,11 @@ T(n) = bT(n/a) + D(n) + C(n)
 
 \subsection{クイックソート}
 クイックソートは配列を整列させるアルゴリズムである．
-クイックソートの擬似コードは Algorithm~\ref{alg:qsort}のようになる．
+クイックソートの擬似コードをアルゴリズム~\ref{alg:qsort}に示す．
 クイックソートはクイックセレクトととても良く似ており，「\textbf{分割}」のステップはまったく同じである．
 
 \begin{algorithm}
+\floatname{algorithm}{アルゴリズム}
 \caption{クイックソートの擬似コード(入力: 整数の配列 $A$．出力: 配列$A$を小さい順に並べた配列．)}
 \label{alg:qsort}
 \begin{algorithmic}
@@ -160,7 +166,7 @@ T(n) = bT(n/a) + D(n) + C(n)
 \end{algorithmic}
 \end{algorithm}
 
-\section{分割統治法についてまとめ}
+\section{分割統治法についてまとめと動的計画法}
 ここまでの分割統治法についての説明をまとめる．
 \begin{itemize}
 \item 分割統治法は「\textbf{分割}」，「\textbf{統治}」，「\textbf{結合}」の3つのステップからなる再帰的アルゴリズムの枠組みである．
@@ -208,9 +214,10 @@ T(n) = bT(n/a) + D(n) + C(n)
 そこで一旦サイズ$n$の配列をサイズ5ずつに分割して，それぞれ5つの要素の中で中央値をとる．
 その中央値を集めて長さ$\lceil n/5\rceil$の配列を作る．
 そしてその長さ$\lceil n/5\rceil$の配列の中央値をクイックセレクトを再帰呼び出しすることで計算し，それをピボットとする．
-擬似コードをAlgorithm~\ref{alg:qselectl}に示す．
+擬似コードをアルゴリズム~\ref{alg:qselectl}に示す．
 
 \begin{algorithm}
+\floatname{algorithm}{アルゴリズム}
 \caption{改良版クイックセレクトの擬似コード(入力: 整数の配列 $A$，非負の整数$k$．出力: 配列$A$の$k+1$番目に大きい要素．)}
 \label{alg:qselectl}
 \begin{algorithmic}
