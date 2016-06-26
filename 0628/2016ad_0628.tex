@@ -86,11 +86,9 @@ f_1=f_2&=1\\
 f_n&=f_{n-1}+f_{n-2}\qquad n\ge 3.
 \end{align*}
 さて，分割統治法の考え方に乗っ取って，この再帰的な関係をそのままアルゴリズムにしてみよう．
-C言語で書くと次のようなプログラムになる．
+C言語で書くと次のようなプログラムになる（この関数の入力は必ず1以上の整数でなくてはならない）．
 \begin{lstlisting}[basicstyle=\ttfamily\small,showstringspaces=false,language=C,frame=single]
 int fib(int n){
-// n が0以下の場合はエラー
-  if(n <= 0) return -1;
   if(n == 1 || n == 2) return 1;
   else return fib(n - 1) + fib(n - 2);
 }
@@ -113,8 +111,6 @@ int F[100];
 
 int fib(int n){
   int i;
-// n が0以下もしくは100以上の場合はエラー
-  if(n <= 0 || n >= 100) return -1;
   F[1] = F[2] = 1;
   for(i = 3; i <= n; i++){
     F[i] = F[i-1] + F[i-2];
@@ -211,6 +207,9 @@ int q(int k, int n){
 計算済みかどうか区別するために，未計算の「しるし」として最初に \texttt{Q} には \texttt{-1} を代入しておこう．
 C言語プログラムは次のようになる．
 \begin{lstlisting}[basicstyle=\ttfamily\small,showstringspaces=false,language=C,frame=single]
+//十分大きなサイズの配列（main 関数の中で-1を全ての要素に代入しておく）
+int Q[100][100];
+
 int q(int k, int n){
 //計算済みの場合は配列の値を返す
   if(Q[k][n] != -1) return Q[k][n];
