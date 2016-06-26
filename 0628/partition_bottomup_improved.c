@@ -17,7 +17,7 @@ int main(){
   }
 
   for(k = 1; k < N; k++){
-    for(n = k; n <= N; n++){
+    for(n = k; n < N; n++){
       Q[n] += Q[n - k];
     }
     printf("%d: %d\n", k, Q[k]);

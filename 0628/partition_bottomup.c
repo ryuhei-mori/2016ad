@@ -22,7 +22,7 @@ int main(){
   }
 
   for(k = 1; k < N; k++){
-    for(n = k; n <= N; n++){
+    for(n = k; n < N; n++){
       Q[k][n] = Q[k - 1][n] + Q[min(k, n - k)][n - k];
     }
   }
