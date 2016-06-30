@@ -3,8 +3,8 @@
 #define N 1000
 #define WMAX 100000
 
-unsigned int C[N+1];
-unsigned int V[N+1];
+unsigned int C[N];
+unsigned int V[N];
 
 
 int main(){
