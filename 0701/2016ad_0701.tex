@@ -1,0 +1,147 @@
+\documentclass[a4paper,twoside,onecolumn,openany,article]{memoir}
+\usepackage{xeCJK}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\defaultfontfeatures{Ligatures=TeX}
+
+\setCJKmainfont[BoldFont=IPAGothic]{IPAMincho}
+\setCJKsansfont{IPAGothic}
+\setCJKmonofont{IPAGothic}
+
+\theoremstyle{remark}
+\newtheorem{remark}{\textbf{余談}}
+
+
+%\setmainfont{}
+\setsansfont{URW Gothic}
+\setmonofont{Inconsolata}
+
+\usepackage{listings}
+
+%\renewcommand{\algorithmcfname}{アルゴリズム}
+
+
+
+\settrimmedsize{\stockheight}{\stockwidth}{*}
+
+%\setlrmarginsandblock{1.5in}{1in}{*}
+\setlrmarginsandblock{1.2in}{1.2in}{*}
+\setulmarginsandblock{1.2in}{1.5in}{*}
+\setheadfoot{20mm}{15mm}
+
+%\newlength{\linespace}
+%\setlength{\linespace}{\baselineskip}
+%\setlength{\headheight}{\onelineskip}
+%\setlength{\headsep}{\linespace}
+%\addtolength{\headsep}{-\topskip}
+
+%\setlength{\footskip}{\onelineskip}
+%\setlength{\footnotesep}{\onelineskip}
+
+\checkandfixthelayout
+
+\counterwithout{section}{chapter}
+\setsecnumdepth{subsubsection}
+
+\title{アルゴリズムとデータ構造~プログラミング演習}
+\date{2016年7月1日}
+\author{森~立平 \texttt{mori@c.titech.ac.jp}}
+
+\begin{document}
+\maketitle
+
+\noindent
+今日の目標
+\begin{itemize}
+\item 動的計画法（「宝詰め込み問題」，最適解の探索も含む）のプログラムを書けるようになる．
+\item 「レポート」に必要なプログラムを書く．
+\end{itemize}
+
+\noindent
+今日の課題はなし
+
+\vspace{.5em}
+\noindent
+今日のワークフロー
+\begin{enumerate}
+\item まだ「宝詰め込み問題」の補助問題の定義と補助問題の解が満たす再帰的な関係式（漸化式）が導出できていない場合はそれらをもとめる．
+\item プログラムの雛形を保存する．
+\item プログラムの雛形をもとに「宝詰め込み問題」のプログラムを書く（いきなりボトムアップ法で書いてもよいし，まずはトップダウン法のプログラムを確実に書くのもよい）．
+まずは最適値を正しく計算するプログラムを書くことを目標にするとよい．
+\end{enumerate}
+
+\section{宝詰め込み問題とプログラムの仕様について}
+宝詰め込み問題を改めて記述する．
+
+\vspace{.5em}
+\noindent
+入力: $n$, $W$, $C[0],\dotsc, C[n-1]$, $V[0],\dotsc,V[n-1]$．\\
+出力: $S\subseteq\{0,1,\dotsc,n-1\}$ で $\sum_{i\in S} C[i] \le W$ を満たすものの中で $\sum_{i\in S}V[i]$ を最大化するもの．
+および，そのような$S$に対する $\sum_{i\in S} V[i]$の値．
+
+\vspace{.5em}
+
+次にレポートで提出してもらう宝詰め込み問題のプログラムの仕様を記述する．
+宝詰め込み問題のプログラムは標準入力から問題の入力を受け取って，標準出力に問題の解を出力することにする（標準入力，標準出力の説明は次章でおこなう）．
+入力のフォーマットは
+\begin{verbatim}
+n
+W
+C[0] C[1] ... C[n-1]
+V[0] V[1] ... V[n-1]
+\end{verbatim}
+とする．
+例えば
+\begin{verbatim}
+5
+13
+1 2 5 7 8
+1 3 4 5 10
+\end{verbatim}
+は入力の一例である．
+次に出力のフォーマットは
+\begin{verbatim}
+最適値
+最適解（宝のインデックスを昇順で並べる）
+\end{verbatim}
+とする．
+\begin{verbatim}
+14
+0 1 4
+\end{verbatim}
+一般的に最適解は一意には定まらないが，何かひとつ最適解を出力すればよい．
+
+
+\section{標準入出力について}
+プログラムに対して入力する方法，出力する方法は様々である．
+その中でも標準入出力を使うのは最も基本的で柔軟な方法である．
+ここは標準入力から「宝詰め込み問題」の入力を受け取るプログラムを雛形として与える．
+
+\lstinputlisting[basicstyle=\ttfamily\small,showstringspaces=false,language=C,frame=single,title={宝詰め込み問題のプログラムの雛形}]{treasure.c}
+この雛形を用いて，既に問題の入力はC言語プログラムの変数に代入されているとしてプログラムを書いてよい．
+また標準出力へ出力するためには，今までと同じように \texttt{printf} を使えばよいので，特に何も気にする必要はない．
+
+最後に実際にプログラムに入力を与え出力を受け取る方法を記す．
+テキストファイル \texttt{input.txt} にプログラムへの入力を書いておく．
+例えば
+\begin{verbatim}
+5
+13
+1 2 5 7 8
+1 3 4 5 10
+\end{verbatim}
+と書いておく．
+それから
+
+\begin{verbatim}
+./a.out < input.txt
+\end{verbatim}
+をターミナルから実行すれば，\texttt{input.txt}に書いてある入力をプログラムで受け取ることができる．
+
+\end{document}
