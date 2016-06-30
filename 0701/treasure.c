@@ -3,8 +3,8 @@
 #define N 1000
 #define WMAX 100000
 
-unsigned int C[N];
-unsigned int V[N];
+unsigned int C[N+1];
+unsigned int V[N+1];
 
 
 int main(){
@@ -13,11 +13,11 @@ int main(){
 
   if(scanf("%u", &n) != 1) return 1;
   if(scanf("%u", &W) != 1) return 1;
-  if(n >= N){
+  if(n > N){
     puts("Too many items");
     return 1;
   }
-  if(W >= WMAX){
+  if(W > WMAX){
     puts("Too large bag");
     return 1;
   }
