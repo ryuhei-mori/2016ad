@@ -4,8 +4,6 @@
 #define WMAX 100000
 #define MAXSTATES WMAX
 
-#define MAX(a, b) (((a)>(b))?(a):(b))
-
 unsigned int C[N];
 unsigned int V[N];
 
@@ -80,7 +78,7 @@ int main(){
 /*
   最適値と最終的な状態の数の出力（下2行は消さないこと）
 */
-  printf("%d\n", states[ns-1]);
+  printf("%d\n", states[ns-1].v);
   printf("%d\n", ns);
 
   return 0;
