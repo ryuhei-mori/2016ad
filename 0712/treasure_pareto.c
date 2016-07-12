@@ -2,7 +2,7 @@
 
 #define N 20000
 #define WMAX 100000
-#define MAXSTATES WMAX
+#define MAXSTATES (WMAX+1)
 
 unsigned int C[N];
 unsigned int V[N];
