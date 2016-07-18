@@ -1,0 +1,250 @@
+\documentclass[a4paper,twoside,onecolumn,openany,article]{memoir}
+\usepackage{xeCJK}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{enumerate}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\defaultfontfeatures{Ligatures=TeX}
+
+\setCJKmainfont[BoldFont=IPAGothic]{IPAMincho}
+\setCJKsansfont{IPAGothic}
+\setCJKmonofont{IPAGothic}
+
+\newtheorem{theorem}{定理}
+\theoremstyle{remark}
+\newtheorem{remark}{\textbf{余談}}
+
+
+%\setmainfont{}
+\setsansfont{URW Gothic}
+\setmonofont{Inconsolata}
+
+\usepackage{listings}
+
+%\renewcommand{\algorithmcfname}{アルゴリズム}
+
+
+
+\settrimmedsize{\stockheight}{\stockwidth}{*}
+
+%\setlrmarginsandblock{1.5in}{1in}{*}
+\setlrmarginsandblock{1.2in}{1.2in}{*}
+\setulmarginsandblock{1.2in}{1.5in}{*}
+\setheadfoot{20mm}{15mm}
+
+%\newlength{\linespace}
+%\setlength{\linespace}{\baselineskip}
+%\setlength{\headheight}{\onelineskip}
+%\setlength{\headsep}{\linespace}
+%\addtolength{\headsep}{-\topskip}
+
+%\setlength{\footskip}{\onelineskip}
+%\setlength{\footnotesep}{\onelineskip}
+
+\checkandfixthelayout
+
+\counterwithout{section}{chapter}
+\setsecnumdepth{subsubsection}
+
+
+\title{アルゴリズムとデータ構造~プログラミング演習}
+\date{2016年7月19日}
+\author{森~立平 \texttt{mori@c.titech.ac.jp}}
+
+\begin{document}
+\maketitle
+
+\noindent
+今日の目標
+\begin{itemize}
+\item 動的計画法（「宝詰め込み問題」，最適解の探索も含む）のプログラムを書けるようになる．
+\item 「レポート」に必要なプログラムを書く．
+\end{itemize}
+
+\noindent
+今日の課題
+\begin{enumerate}
+\item 二分探索木のプログラムを書く
+\end{enumerate}
+
+\vspace{.5em}
+\noindent
+今日のワークフロー
+\begin{enumerate}
+\item 資料を読む。
+\item 課題をやる。
+\end{enumerate}
+
+\section{ポインタ、\texttt{malloc}, \texttt{free}について}
+「宝詰め込み問題」のプログラムではあらかじめ配列の長さを固定していた。
+C言語では配列の長さはコンパイル時に決まっていなければならない。
+そのため、どのような入力にも対応できるように、十分な長さの配列を確保することにしていた。
+もしも、入力によって配列の長さを変えることができれば、
+メモリの無駄を防ぐことができる。
+そのために関数\texttt{malloc}を使うことができる。
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,showstringspaces=false,language=C,frame=single]
+// malloc を使うために必要
+#include <stdlib.h>
+
+int main(){
+// int へのポインタを宣言
+  int *p;
+/*
+  関数 malloc(size) はメモリ領域を size バイト確保して、
+  その先頭へのアドレスを返す
+*/
+  p = malloc(sizeof(int));
+}
+\end{lstlisting}
+ここで\texttt{p}は「ポインタ」と呼ばれる、メモリアドレスを代入するための変数である。
+最後の行で\texttt{p}に\texttt{malloc}によって確保されたアドレスの先頭を代入した。
+ここで\texttt{sizeof(int)}とは\texttt{int}型の変数が必要とする領域のバイト数である。
+以降\texttt{*p}で値を代入したり、読み出したり、通常の変数と同じように扱うことができる。
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,showstringspaces=false,language=C,frame=single]
+// 2 を *p に代入
+*p = 2;
+
+// 2 が表示される
+printf("%d\n", *p);
+
+/*
+  p が指しているアドレスが表示される
+  通常はプログラムの中でアドレスを表示する必要はない
+*/
+printf("%x\n", p);
+\end{lstlisting}
+また、配列のように多くの領域をいっぺんに確保することもできる。
+\begin{lstlisting}[basicstyle=\ttfamily\small,showstringspaces=false,language=C,frame=single]
+int *p;
+// int 3個分のメモリ領域を確保
+p = malloc(sizeof(int)*3);
+// 確保したメモリの先頭に 0 を書き込む
+*p = 0;
+// 確保したメモリの先頭から int 一つ分進めたアドレスに 1 を書き込む
+*(p+1) = 1;
+// 確保したメモリの先頭から int 二つ分進めたアドレスに 2 を書き込む
+*(p+2) = 2;
+/*
+ エラー！ 確保したメモリの先頭から int みっつ分進めたアドレスに
+ 3 を書き込もうとしているが、ここは malloc によって確保されていないので、
+ 書き込めない
+*/
+*(p+3) = 3;
+\end{lstlisting}
+このように \texttt{*(p+i)} で \texttt{p} から $i$だけ進んだアドレスを参照して書き込んだり、読み出したりできる。
+また \texttt{*(p+i)} の代わりに \texttt{p[i]} でも同じ意味になる。
+逆に配列をポインタのように扱うこともできる。
+\begin{lstlisting}[basicstyle=\ttfamily\small,showstringspaces=false,language=C,frame=single]
+int *p;
+int A[100];
+
+// A[4] = 2 と同じ意味
+*(A+4) = 2;
+
+// p を A[10] を指すようにする
+p = A+10;
+
+// A[11] に 5 を代入
+p[1] = 5;
+
+// エラー！Aに代入することはできない
+A = p;
+\end{lstlisting}
+メモリは有限なのでいくらでも大きな領域が確保できるわけではない。
+もしも、\texttt{malloc}がメモリの確保に失敗すると \texttt{NULL} が返される。
+\begin{lstlisting}[basicstyle=\ttfamily\small,showstringspaces=false,language=C,frame=single]
+int *p;
+// すごく大きなメモリ領域を確保しようとするが
+// 確保できず NULL が p に代入される
+p = malloc(sizeof(int)*1000000000);
+
+// エラー！ p が NULL なのに参照しようとしている
+*p = 3;
+\end{lstlisting}
+ここで\texttt{NULL}とは具体的には 0 のことである。
+0は無効なアドレスなので参照できない。
+C言語では無効なアドレスを表現する方法として0を用いる。
+無効なアドレスとして0を使う場合には、それが分かるように\texttt{NULL}と書くことにする。
+\begin{lstlisting}[basicstyle=\ttfamily\small,showstringspaces=false,language=C,frame=single]
+int *p;
+
+p = malloc(sizeof(int)*1000000000);
+
+// メモリが確保できたかどうかチェック
+if(p == NULL){
+  puts("メモリ確保できなかった");
+  return 1;
+}
+
+\end{lstlisting}
+本当はこのように\texttt{malloc}を使ったら毎回、ポインタの値が\texttt{NULL}かどうかチェックする
+必要がある。
+
+\texttt{malloc}で確保したメモリ領域はプログラムの中のどこでも有効である。
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,showstringspaces=false,language=C,frame=single]
+struct list {
+  int x;
+  struct list *next;
+};
+
+int *create_singleton(int n){
+  struct list *p = malloc(sizeof(struct list));
+  p->x = n;
+  p->next = NULL;
+}
+
+int main(){
+  struct list *p = create_singleton(10);
+  struct list *q = create_singleton(100);
+  q->next = p;
+}
+\end{lstlisting}
+このように関数\texttt{create\_singleton}の中で確保したメモリ領域のアドレスを\texttt{main}関数の中で
+使うことができる。
+ここで\texttt{p->x}は\texttt{(*p).x}と同じ意味である。
+このように必要になったら\texttt{malloc}を使ってメモリを確保すれば、メモリの許す限りいくらでもメモリ領域を使うことができる。
+一方で必要なくなったメモリを解法することができる。
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,showstringspaces=false,language=C,frame=single]
+int *p;
+p = malloc(sizeof(int)*10000);
+/*
+なにかここで p を使って計算する
+*/
+f(p);
+
+// p はもう必要ないので解放する
+free(p);
+
+// エラー！もう p は使えない
+*p = 2;
+\end{lstlisting}
+関数\texttt{free}を使うことで必要なくなったメモリを解放することができる。
+\texttt{free}に渡すアドレスは必ず以前\texttt{malloc}で受けとったものでなくてはならない。
+上記で\texttt{free(p+10)}などとしてはいけない。
+\texttt{malloc}を使うだけであれば、メモリを食いつぶしていって、いつか利用可能なメモリが無くなってしまうが、
+必要なくなったメモリを\texttt{free}で解放してあげることで、また使い終ったメモリを再利用できる。
+このようにC言語ではプログラマがメモリを管理しなくてはならない。
+そのような言語は C と C++ くらいで、その他の言語では自動的にメモリを管理してくれる。
+その他の言語では、使用されていないアドレスを自動的に検出して解放するガベージコレクション(GC)と呼ばれる高度な
+機能が備わっている。
+しかしそのような場合でも、本当はプログラミング言語がメモリ管理を請け負っているだけで、
+内部では\texttt{malloc}と\texttt{free}でメモリ管理をしていることを知っている必要がある。
+
+\section{二分探索木について}
+
+\section{課題}
+
+\section{発展的課題: 回転による平衡性の維持}
+
+\section{発展的課題: \texttt{free} することでのメモリリークの防止}
+
+\end{document}
