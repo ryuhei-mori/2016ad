@@ -60,16 +60,15 @@
 \maketitle
 
 \noindent
-今日の目標
+今週の目標
 \begin{itemize}
-\item 動的計画法（「宝詰め込み問題」，最適解の探索も含む）のプログラムを書けるようになる．
-\item 「レポート」に必要なプログラムを書く．
+\item ポインタ、\texttt{malloc} を使ったプログラムが書けるようになる。
 \end{itemize}
 
 \noindent
-今日の課題
+今週の課題
 \begin{enumerate}
-\item 二分探索木のプログラムを書く
+\item 二分探索木のプログラムを書く。7/26の授業時間に提出。
 \end{enumerate}
 
 \vspace{.5em}
@@ -123,14 +122,19 @@ printf("%x\n", p);
 また、配列のように多くの領域をいっぺんに確保することもできる。
 \begin{lstlisting}[basicstyle=\ttfamily\small,showstringspaces=false,language=C,frame=single]
 int *p;
+
 // int 3個分のメモリ領域を確保
 p = malloc(sizeof(int)*3);
+
 // 確保したメモリの先頭に 0 を書き込む
 *p = 0;
+
 // 確保したメモリの先頭から int 一つ分進めたアドレスに 1 を書き込む
 *(p+1) = 1;
+
 // 確保したメモリの先頭から int 二つ分進めたアドレスに 2 を書き込む
 *(p+2) = 2;
+
 /*
  エラー！ 確保したメモリの先頭から int みっつ分進めたアドレスに
  3 を書き込もうとしているが、ここは malloc によって確保されていないので、
@@ -216,9 +220,8 @@ int main(){
 \begin{lstlisting}[basicstyle=\ttfamily\small,showstringspaces=false,language=C,frame=single]
 int *p;
 p = malloc(sizeof(int)*10000);
-/*
-なにかここで p を使って計算する
-*/
+
+// p を使って計算する
 f(p);
 
 // p はもう必要ないので解放する
@@ -227,24 +230,114 @@ free(p);
 // エラー！もう p は使えない
 *p = 2;
 \end{lstlisting}
-関数\texttt{free}を使うことで必要なくなったメモリを解放することができる。
+このように関数\texttt{free}を使うことで必要なくなったメモリを解放することができる。
 \texttt{free}に渡すアドレスは必ず以前\texttt{malloc}で受けとったものでなくてはならない。
 上記で\texttt{free(p+10)}などとしてはいけない。
 \texttt{malloc}を使うだけであれば、メモリを食いつぶしていって、いつか利用可能なメモリが無くなってしまうが、
 必要なくなったメモリを\texttt{free}で解放してあげることで、また使い終ったメモリを再利用できる。
 このようにC言語ではプログラマがメモリを管理しなくてはならない。
-そのような言語は C と C++ くらいで、その他の言語では自動的にメモリを管理してくれる。
-その他の言語では、使用されていないアドレスを自動的に検出して解放するガベージコレクション(GC)と呼ばれる高度な
+そのような言語は C と C++ くらいで、その他のプログラミング言語では自動的にメモリを管理してくれる。
+その他のプログラミング言語では、使用されていないアドレスを自動的に検出して解放するガベージコレクション(GC)と呼ばれる高度な
 機能が備わっている。
 しかしそのような場合でも、本当はプログラミング言語がメモリ管理を請け負っているだけで、
 内部では\texttt{malloc}と\texttt{free}でメモリ管理をしていることを知っている必要がある。
 
-\section{二分探索木について}
+\section{課題: 二分探索木の実装}
+二分探索木のノードを構造体で表すことにする。
+\begin{lstlisting}[basicstyle=\ttfamily\small,showstringspaces=false,language=C,frame=single]
+struct tree {
+  struct tree *l;
+  int v;
+  struct tree *r;
+  int h;
+};
 
-\section{課題}
+// 以降 struct tree の代わりに tree_t と書ける
+typedef struct tree tree_t;
+\end{lstlisting}
+毎回\texttt{struct tree} と書くのは面倒なので \texttt{typedef}を使って\texttt{tree\_t} という型名を与えることにする。
+ここで \texttt{l} は左のノード、 \texttt{r} は右のノード、\texttt{v}はそのノードが持つ値、\texttt{h}はそのノードの高さとする（高さは発展的課題で用いる）。
+「ノードの高さ」は左のノードの高さ（無い場合は0）と右のノードの高さ（無い場合は0）の最大値+1と定義する。
+この構造体では左及び右のノードが無い場合は\texttt{NULL}が代入されているとする。
+以下の説明ではノードとそのノードを根とする二分探索木を同一視することにする。
+また、ポインタ \texttt{tree\_t *t} と二分探索木を同一視することにする。
+
+二分探索木に関して以下の関数を実装したい。
+\begin{itemize}
+\item \texttt{int tree\_height(tree\_t *t)}: 木の高さを返す関数。
+\item \texttt{tree\_t *tree\_create(tree\_t *l, int v, tree\_t *r)}: 左のノードが\texttt{l}で右のノードが\texttt{r}で値が\texttt{v}の二分探索木を作って二分探索木へのポインタを返す関数
+(\texttt{malloc}が必要)。二分探索木\texttt{l}が持つ値はすべて\texttt{v}未満、二分探索木\texttt{r}が持つ値はすべて\texttt{v}より大きいと仮定してよい。
+\item \texttt{void tree\_print\_elements(tree\_t *t)}: 二分探索木\texttt{t}に含まれている値を小さい順に\texttt{printf}で表示する関数。
+\item \texttt{int tree\_mem(int x, tree\_t *t)}: 二分探索木\texttt{t}全体の中に値\texttt{x}があれば 1 なければ 0 を返す関数。
+\item \texttt{tree\_t *tree\_add(int x, tree\_t *t)}: 二分探索木\texttt{t} に値\texttt{x}を加えた二分探索木を返す関数。既に存在する場合はなにもしない（なにか新しくノードを作ってしまうのは許すことにする）。
+\item \texttt{int tree\_min(tree\_t *t)}: 二分探索木\texttt{t} に含まれる一番小さい値を返す関数。
+\item \texttt{int tree\_max(tree\_t *t)}: 二分探索木\texttt{t} に含まれる一番大きい値を返す関数。
+\item \texttt{tree\_t *tree\_remove\_min(tree\_t *t)}: 二分探索木\texttt{t} に含まれる一番小さい値以外の値を持つ二分探索木を返す関数。
+\item \texttt{tree\_t *tree\_merge(tree\_t *t1, tree\_t *t2)}: 二分探索木\texttt{t1}, \texttt{t2} に含まれる値をすべてを持つ二分探索木を返す関数。
+ただし二分探索木\texttt{t1}に含まれる値は二分探索木\texttt{t2}に含まれる値より小さいとする。
+\item \texttt{tree\_t *tree\_remove(int x, tree\_t *t)}: 二分探索木 \texttt{t} から値\texttt{x}を除いた二分探索木を返す関数。
+\end{itemize}
+以下は注意点とルールである。
+\begin{itemize}
+\item \texttt{tree\_t *}型の引数は常に\texttt{NULL}の可能性があることに注意すること。
+\item 一度\texttt{tree\_create}で作ったノードの持つ変数(\texttt{l}, \texttt{v}, \texttt{r}, \texttt{h})の値は\textbf{二度と書き換えてはならない}。
+必要があれば\texttt{tree\_create}で新しくノードを作ることにする。
+\end{itemize}
+以下課題である。
+\begin{itemize}
+\item 上記の関数を実装せよ。関数の定義のプログラムを書け。
+\end{itemize}
 
 \section{発展的課題: 回転による平衡性の維持}
+二分探索木はできるだけ平衡しているとよい。
+値を追加するときに単純にノードを二分探索木に追加すると最悪の場合とても深い木になってしまう（値が昇順に追加される場合を考えるといい）。
+もしも、二分探索木に含まれるすべてのノードが「左の子供の高さと右の子供の高さの差が1以内」という性質を満たしているとき、その二分探索木は「平衡」していると呼ぶことにする。
+\begin{itemize}
+\item \texttt{tree\_t *tree\_bal(tree\_t *l, int v, tree\_t *r)}: 「平衡二分探索木 \texttt{l}に含まれるすべての値、 \texttt{v}、 平衡二分探索木 \texttt{r}に含まれるすべての値」を
+すべて含む平衡二分探索木を返す関数。ただし、\texttt{l}, \texttt{v}, \texttt{r} は\texttt{tree\_create}の引数の条件を満たしているとする。
+さらに、\texttt{l}の高さと\texttt{r}の高さの差は2以内であるとする。
+\end{itemize}
+この関数を実装するためには回転という操作が必要である。
+以下 \texttt{l} の高さが \texttt{r} の高さ+1より大きい場合のアルゴリズムを説明する。
+簡単のために二分探索木のノードを \texttt{(l v r)} で表現することにする。
+\texttt{tree\_create} のように単純に二分探索木を作ると\texttt{(l v r)}が得られるが、これは平衡していない。
+\texttt{l}をさらに展開することでこの二分探索木は\texttt{((ll lv lr) v lr)}と書ける（\texttt{l}は必ず\texttt{NULL}でないことに注意する）。
+ここで\texttt{ll}の高さが\texttt{lr}の高さ以上の場合は
+\texttt{(ll lv (lr v r))}が平衡二分探索木となる。
+\texttt{ll}の高さが\texttt{lr}の高さ未満の場合は\texttt{lr}をさらに展開して
+\texttt{((ll lv (lrl lrv lrr)) v r)}という表現が得られる。
+そして\texttt{((ll lv lrl) lrv (lrr v r))}が平衡二分探索木となる。
+
+今まで作った関数の中で\texttt{tree\_create}を\texttt{tree\_bal}に置き換えることで、常に二分探索木が平衡するようにできる。
+以下課題である。
+\begin{itemize}
+\item 関数\texttt{tree\_bal}のプログラムの定義を書け。
+\item (超発展的課題) 上記の回転操作で平衡二分探索木が作れることを説明せよ。
+\end{itemize}
 
 \section{発展的課題: \texttt{free} することでのメモリリークの防止}
+課題では不変な(値が書き換えられることのない)二分探索木を実装した。
+仮に\textbf{すべての二分探索木は一箇所からしか参照されていない(ポインタで指されていない)}とすると、
+もう必要のない構造体のメモリを解放することができる。
+\begin{itemize}
+\item \texttt{void tree\_free(tree\_t *t)}: ノード\texttt{t}のメモリを解放する関数。
+\end{itemize}
+を実装し、今まで作った関数の中で適切なところで使用せよ。
+そうすることで\texttt{main}関数の中で一回だけ\texttt{tree\_create}を呼んで、そこに値を追加、削除したときに、
+\texttt{main}関数から辿れないノードは解放されるようにせよ。
+動作を確認するために
+\begin{itemize}
+\item \texttt{int tree\_size(tree\_t *t)}: 二分探索木\texttt{t}に含まれる値の個数を返す関数。
+\end{itemize}
+を作るとよい。
+グローバル変数\texttt{count}を用意して、
+\texttt{tree\_create}の中でインクリメント、
+\texttt{tree\_free}の中でデクリメントすることで現在生きているノードの個数が分かる。
+それが\texttt{main}関数が持っている二分探索木のサイズと一致することを確認すればよい。
+
+以下課題である。
+\begin{itemize}
+\item 関数\texttt{tree\_free}の定義と使用する場所及びその説明を書け。
+\end{itemize}
 
 \end{document}
