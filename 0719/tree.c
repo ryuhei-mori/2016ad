@@ -58,7 +58,7 @@ tree_t *tree_remove_min(tree_t *t){
 }
 
 /*
-  2分探索木 l の要素は必ず2分探索木 r の要素より小さい
+  2分探索木 t1 の要素は必ず2分探索木 t2 の要素より小さい
 */
 tree_t *tree_merge(tree_t *t1, tree_t *t2){
 }

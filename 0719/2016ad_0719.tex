@@ -199,10 +199,11 @@ struct list {
   struct list *next;
 };
 
-int *create_singleton(int n){
+struct list *create_singleton(int n){
   struct list *p = malloc(sizeof(struct list));
   p->x = n;
   p->next = NULL;
+  return p;
 }
 
 int main(){
@@ -264,24 +265,25 @@ typedef struct tree tree_t;
 
 二分探索木に関して以下の関数を実装したい。
 \begin{itemize}
-\item \texttt{int tree\_height(tree\_t *t)}: 木の高さを返す関数。
+\item \texttt{int tree\_height(tree\_t *t)}: 二分探索木\texttt{t}の高さを返す関数。\texttt{t}が\texttt{NULL}のときは0を返す。
 \item \texttt{tree\_t *tree\_create(tree\_t *l, int v, tree\_t *r)}: 左のノードが\texttt{l}で右のノードが\texttt{r}で値が\texttt{v}の二分探索木を作って二分探索木へのポインタを返す関数
-(\texttt{malloc}が必要)。二分探索木\texttt{l}が持つ値はすべて\texttt{v}未満、二分探索木\texttt{r}が持つ値はすべて\texttt{v}より大きいと仮定してよい。
+(\texttt{malloc}が必要)。二分探索木\texttt{l}が持つ値はすべて\texttt{v}未満、二分探索木\texttt{r}が持つ値はすべて\texttt{v}より大きいとする。
 \item \texttt{void tree\_print\_elements(tree\_t *t)}: 二分探索木\texttt{t}に含まれている値を小さい順に\texttt{printf}で表示する関数。
 \item \texttt{int tree\_mem(int x, tree\_t *t)}: 二分探索木\texttt{t}全体の中に値\texttt{x}があれば 1 なければ 0 を返す関数。
-\item \texttt{tree\_t *tree\_add(int x, tree\_t *t)}: 二分探索木\texttt{t} に値\texttt{x}を加えた二分探索木を返す関数。既に存在する場合はなにもしない（なにか新しくノードを作ってしまうのは許すことにする）。
-\item \texttt{int tree\_min(tree\_t *t)}: 二分探索木\texttt{t} に含まれる一番小さい値を返す関数。
-\item \texttt{int tree\_max(tree\_t *t)}: 二分探索木\texttt{t} に含まれる一番大きい値を返す関数。
-\item \texttt{tree\_t *tree\_remove\_min(tree\_t *t)}: 二分探索木\texttt{t} に含まれる一番小さい値以外の値を持つ二分探索木を返す関数。
+\item \texttt{tree\_t *tree\_add(int x, tree\_t *t)}: 二分探索木\texttt{t} に値\texttt{x}を加えた二分探索木を返す関数。\texttt{x}が既に存在する場合は\texttt{t}と「等しい」二分探索木を返す。
+\item \texttt{int tree\_min(tree\_t *t)}: 二分探索木\texttt{t} に含まれる一番小さい値を返す関数。\texttt{t}が\texttt{NULL}の場合の挙動は未定義。
+\item \texttt{int tree\_max(tree\_t *t)}: 二分探索木\texttt{t} に含まれる一番大きい値を返す関数。\texttt{t}が\texttt{NULL}の場合の挙動は未定義。
+\item \texttt{tree\_t *tree\_remove\_min(tree\_t *t)}: 二分探索木\texttt{t} に含まれる一番小さい値以外の値を持つ二分探索木を返す関数。\texttt{t}が\texttt{NULL}の場合の挙動は未定義。
 \item \texttt{tree\_t *tree\_merge(tree\_t *t1, tree\_t *t2)}: 二分探索木\texttt{t1}, \texttt{t2} に含まれる値をすべてを持つ二分探索木を返す関数。
 ただし二分探索木\texttt{t1}に含まれる値は二分探索木\texttt{t2}に含まれる値より小さいとする。
-\item \texttt{tree\_t *tree\_remove(int x, tree\_t *t)}: 二分探索木 \texttt{t} から値\texttt{x}を除いた二分探索木を返す関数。
+\item \texttt{tree\_t *tree\_remove(int x, tree\_t *t)}: 二分探索木 \texttt{t} から値\texttt{x}を除いた二分探索木を返す関数。\texttt{x}が存在しない場合は\texttt{t}と「等しい」二分探索木を返す。
 \end{itemize}
 以下は注意点とルールである。
 \begin{itemize}
 \item \texttt{tree\_t *}型の引数は常に\texttt{NULL}の可能性があることに注意すること。
 \item 一度\texttt{tree\_create}で作ったノードの持つ変数(\texttt{l}, \texttt{v}, \texttt{r}, \texttt{h})の値は\textbf{二度と書き換えてはならない}。
 必要があれば\texttt{tree\_create}で新しくノードを作ることにする。
+\item \texttt{malloc} は\texttt{tree\_create}の中だけで使うこと。
 \end{itemize}
 以下課題である。
 \begin{itemize}
@@ -292,6 +294,7 @@ typedef struct tree tree_t;
 二分探索木はできるだけ平衡しているとよい。
 値を追加するときに単純にノードを二分探索木に追加すると最悪の場合とても深い木になってしまう（値が昇順に追加される場合を考えるといい）。
 もしも、二分探索木に含まれるすべてのノードが「左の子供の高さと右の子供の高さの差が1以内」という性質を満たしているとき、その二分探索木は「平衡」していると呼ぶことにする。
+平衡二分探索木に値を追加、削除したときに平衡でなくなってしまうことがあるため、修正して平衡性を保つ必要がある。
 \begin{itemize}
 \item \texttt{tree\_t *tree\_bal(tree\_t *l, int v, tree\_t *r)}: 「平衡二分探索木 \texttt{l}に含まれるすべての値、 \texttt{v}、 平衡二分探索木 \texttt{r}に含まれるすべての値」を
 すべて含む平衡二分探索木を返す関数。ただし、\texttt{l}, \texttt{v}, \texttt{r} は\texttt{tree\_create}の引数の条件を満たしているとする。
