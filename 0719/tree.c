@@ -76,7 +76,42 @@ int tree_check(tree_t *t){
 */
 
 int main(){
+  int i;
+  tree_t *t = NULL;
 
+  for(i = 0; i < 7919; i++){
+    t = tree_add(i*4000 % 7919, t);
+  }
+
+  tree_print_elements(t);
+
+// サイズが7919かチェック
+  printf("size = %d\n", tree_size(t));
+
+  for(i = 0; i < 7919; i++){
+    t = tree_remove(i*5000 % 7919, t);
+  }
+
+  tree_print_elements(t);
+// サイズが0かチェック
+  printf("size = %d\n", tree_size(t));
+
+/*
+//  平衡性のチェック
+  for(i = 0; i < 100000; i++) {
+    int rnd = rand()%1000;
+    if(rand() % 2)
+      t = tree_remove(rnd, t);
+    else
+      t = tree_add(rnd, t);
+    if(!tree_check(t)) puts("ERROR");
+  }
+
+//  確保しているノードの領域の数と木のサイズが一致するかチェック
+  printf("count = %d\n", count);
+  printf("size = %d\n", tree_size(t));
+*/
+ 
 
   return 0;
 }
