@@ -304,7 +304,7 @@ typedef struct tree tree_t;
 以下 \texttt{l} の高さが \texttt{r} の高さ+1より大きい場合のアルゴリズムを説明する．
 簡単のために二分探索木のノードを \texttt{(l v r)} で表現することにする．
 \texttt{tree\_create} のように単純に二分探索木を作ると\texttt{(l v r)}が得られるが，これは平衡していない．
-\texttt{l}をさらに展開することでこの二分探索木は\texttt{((ll lv lr) v lr)}と書ける（\texttt{l}は必ず\texttt{NULL}でないことに注意する）．
+\texttt{l}をさらに展開することでこの二分探索木は\texttt{((ll lv lr) v r)}と書ける（\texttt{l}は必ず\texttt{NULL}でないことに注意する）．
 ここで\texttt{ll}の高さが\texttt{lr}の高さ以上の場合は
 \texttt{(ll lv (lr v r))}が平衡二分探索木となる．
 \texttt{ll}の高さが\texttt{lr}の高さ未満の場合は\texttt{lr}をさらに展開して
