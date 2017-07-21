@@ -66,6 +66,12 @@ tree_t *tree_merge(tree_t *t1, tree_t *t2){
 tree_t *tree_remove(int x, tree_t *t){
 }
 
+int tree_size(tree_t *t){
+  if(t == NULL) return 0;
+  return 1 + tree_size(t->l) + tree_size(t->r);
+}
+
+
 /*
 平衡性のチェック(発展的課題)
 int tree_check(tree_t *t){
